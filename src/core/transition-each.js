@@ -1,9 +1,19 @@
-function d3_transition_each(callback) {
-  for (var j = 0, m = this.length; j < m; j++) {
-    for (var group = this[j], i = 0, n = group.length; i < n; i++) {
-      var node = group[i];
-      if (node) callback.call(node = node.node, node.__data__, i, j);
-    }
+d3_transitionPrototype.each = function(type, listener) {
+  var id = this.id;
+  if (arguments.length < 2) {
+    var inherit = d3_transitionInherit,
+        inheritId = d3_transitionInheritId;
+    d3_transitionInheritId = id;
+    d3_selection_each(this, function(node, i, j) {
+      d3_transitionInherit = node.__transition__[id];
+      type.call(node, node.__data__, i, j);
+    });
+    d3_transitionInherit = inherit;
+    d3_transitionInheritId = inheritId;
+  } else {
+    d3_selection_each(this, function(node) {
+      node.__transition__[id].event.on(type, listener);
+    });
   }
   return this;
-}
+};

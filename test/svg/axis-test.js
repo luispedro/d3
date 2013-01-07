@@ -57,7 +57,7 @@ suite.addBatch({
         assert.equal(tick.attr("transform"), "translate(0.2,0)");
         assert.equal(text.attr("y"), -9)
         assert.equal(text.attr("dy"), "0em");
-        assert.equal(text.attr("text-anchor"), "middle");
+        assert.equal(text.style("text-anchor"), "middle");
         assert.equal(text.text(), "0.2");
         assert.equal(line.attr("y2"), -6);
         assert.equal(path.attr("d"), "M0,-6V0H1V-6");
@@ -72,7 +72,7 @@ suite.addBatch({
         assert.equal(tick.attr("transform"), "translate(0,0.2)");
         assert.equal(text.attr("x"), 9)
         assert.equal(text.attr("dy"), ".32em");
-        assert.equal(text.attr("text-anchor"), "start");
+        assert.equal(text.style("text-anchor"), "start");
         assert.equal(text.text(), "0.2");
         assert.equal(line.attr("x2"), 6);
         assert.equal(path.attr("d"), "M6,0H0V1H6");
@@ -87,7 +87,7 @@ suite.addBatch({
         assert.equal(tick.attr("transform"), "translate(0.2,0)");
         assert.equal(text.attr("y"), 9)
         assert.equal(text.attr("dy"), ".71em");
-        assert.equal(text.attr("text-anchor"), "middle");
+        assert.equal(text.style("text-anchor"), "middle");
         assert.equal(text.text(), "0.2");
         assert.equal(line.attr("y2"), 6);
         assert.equal(path.attr("d"), "M0,6V0H1V6");
@@ -102,7 +102,7 @@ suite.addBatch({
         assert.equal(tick.attr("transform"), "translate(0,0.2)");
         assert.equal(text.attr("x"), -9)
         assert.equal(text.attr("dy"), ".32em");
-        assert.equal(text.attr("text-anchor"), "end");
+        assert.equal(text.style("text-anchor"), "end");
         assert.equal(text.text(), "0.2");
         assert.equal(line.attr("x2"), -6);
         assert.equal(path.attr("d"), "M-6,0H0V1H-6");
@@ -188,7 +188,7 @@ suite.addBatch({
     },
 
     "ticks": {
-      "defaults to 10": function(axis) {
+      "defaults to [10]": function(axis) {
         var a = axis();
         assert.deepEqual(a.ticks(), [10]);
       },
@@ -225,6 +225,46 @@ suite.addBatch({
         assert.equal(aa[0].length, 2);
         assert.equal(aa[0][0], b);
         assert.equal(aa[0][1], 42);
+      },
+      "affects the generated ticks": function(axis) {
+        var a = axis().ticks(20),
+            g = d3.select("body").html("").append("svg:g").call(a),
+            t = g.selectAll("g");
+        assert.equal(t[0].length, 21);
+      }
+    },
+
+    "tickValues": {
+      "defaults to null": function(axis) {
+        var a = axis().tickValues();
+        assert.isNull(a);
+      },
+      "can be given as array of positions": function(axis) {
+        var l = [1, 2.5, 3], a = axis().tickValues(l), t = a.tickValues();
+        assert.equal(t, l);
+        assert.equal(t.length, 3);
+      },
+      "does not change the tick arguments": function(axis) {
+        var b = {}, a = axis().ticks(b, 42).tickValues([10]), t = a.ticks();
+        assert.equal(t[0], b);
+        assert.equal(t[1], 42);
+        assert.equal(t.length, 2);
+      },
+      "does not change the arguments passed to the scale's tickFormat function": function(axis) {
+        var x = d3.scale.linear(),
+            a = axis().scale(x).ticks(10).tickValues([1, 2, 3]),
+            g = d3.select("body").html("").append("svg:g"),
+            aa = [];
+
+        x.tickFormat = function() {
+          aa.push(arguments);
+          return String;
+        };
+
+        g.call(a);
+        assert.equal(aa.length, 1);
+        assert.equal(aa[0].length, 1);
+        assert.equal(aa[0][0], 10);
       },
       "affects the generated ticks": function(axis) {
         var a = axis().ticks(20),

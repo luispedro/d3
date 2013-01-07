@@ -1,5 +1,5 @@
 var self = this,
-    globals = ["document", "window", "navigator", "CSSStyleDeclaration", "d3"],
+    globals = ["document", "window", "navigator", "CSSStyleDeclaration", "d3", "Sizzle"],
     globalValues = {};
 
 globals.forEach(function(global) {
@@ -11,7 +11,9 @@ window = document.createWindow();
 navigator = window.navigator;
 CSSStyleDeclaration = window.CSSStyleDeclaration;
 
-require("./d3.v2");
+Sizzle = require("sizzle");
+
+require("./d3");
 
 module.exports = d3;
 

@@ -1,35 +1,41 @@
 # See the README for installation instructions.
 
 NODE_PATH ?= ./node_modules
-JS_COMPILER = $(NODE_PATH)/uglify-js/bin/uglifyjs
+JS_UGLIFY = $(NODE_PATH)/uglify-js/bin/uglifyjs
 JS_TESTER = $(NODE_PATH)/vows/bin/vows
+LOCALE ?= en_US
 
 all: \
-	d3.v2.js \
-	d3.v2.min.js \
+	d3.js \
+	d3.min.js \
+	component.json \
 	package.json
 
 # Modify this rule to build your own custom release.
 
-.INTERMEDIATE d3.v2.js: \
+.INTERMEDIATE d3.js: \
 	src/start.js \
 	d3.core.js \
 	d3.scale.js \
 	d3.svg.js \
 	d3.behavior.js \
 	d3.layout.js \
-	d3.csv.js \
+	d3.dsv.js \
 	d3.geo.js \
 	d3.geom.js \
 	d3.time.js \
 	src/end.js
 
 d3.core.js: \
+	src/core/format-$(LOCALE).js \
 	src/compat/date.js \
 	src/compat/style.js \
 	src/core/core.js \
+	src/core/class.js \
 	src/core/array.js \
-	src/core/this.js \
+	src/core/map.js \
+	src/core/identity.js \
+	src/core/true.js \
 	src/core/functor.js \
 	src/core/rebind.js \
 	src/core/ascending.js \
@@ -43,18 +49,16 @@ d3.core.js: \
 	src/core/number.js \
 	src/core/sum.js \
 	src/core/quantile.js \
+	src/core/shuffle.js \
 	src/core/transpose.js \
 	src/core/zip.js \
 	src/core/bisect.js \
-	src/core/first.js \
-	src/core/last.js \
 	src/core/nest.js \
 	src/core/keys.js \
 	src/core/values.js \
 	src/core/entries.js \
 	src/core/permute.js \
 	src/core/merge.js \
-	src/core/split.js \
 	src/core/collapse.js \
 	src/core/range.js \
 	src/core/requote.js \
@@ -70,10 +74,15 @@ d3.core.js: \
 	src/core/formatPrefix.js \
 	src/core/ease.js \
 	src/core/event.js \
+	src/core/transform.js \
 	src/core/interpolate.js \
 	src/core/uninterpolate.js \
+	src/core/color.js \
 	src/core/rgb.js \
 	src/core/hsl.js \
+	src/core/hcl.js \
+	src/core/lab.js \
+	src/core/xyz.js \
 	src/core/selection.js \
 	src/core/selection-select.js \
 	src/core/selection-selectAll.js \
@@ -87,8 +96,8 @@ d3.core.js: \
 	src/core/selection-insert.js \
 	src/core/selection-remove.js \
 	src/core/selection-data.js \
+	src/core/selection-datum.js \
 	src/core/selection-filter.js \
-	src/core/selection-map.js \
 	src/core/selection-order.js \
 	src/core/selection-sort.js \
 	src/core/selection-on.js \
@@ -103,16 +112,20 @@ d3.core.js: \
 	src/core/transition.js \
 	src/core/transition-select.js \
 	src/core/transition-selectAll.js \
+	src/core/transition-filter.js \
 	src/core/transition-attr.js \
 	src/core/transition-style.js \
 	src/core/transition-text.js \
 	src/core/transition-remove.js \
+	src/core/transition-ease.js \
 	src/core/transition-delay.js \
 	src/core/transition-duration.js \
 	src/core/transition-each.js \
 	src/core/transition-transition.js \
+	src/core/transition-tween.js \
 	src/core/timer.js \
-	src/core/transform.js \
+	src/core/mouse.js \
+	src/core/touches.js \
 	src/core/noop.js
 
 d3.scale.js: \
@@ -127,7 +140,9 @@ d3.scale.js: \
 	src/scale/ordinal.js \
 	src/scale/category.js \
 	src/scale/quantile.js \
-	src/scale/quantize.js
+	src/scale/quantize.js \
+	src/scale/threshold.js \
+	src/scale/identity.js
 
 d3.svg.js: \
 	src/svg/svg.js \
@@ -139,8 +154,6 @@ d3.svg.js: \
 	src/svg/chord.js \
 	src/svg/diagonal.js \
 	src/svg/diagonal-radial.js \
-	src/svg/mouse.js \
-	src/svg/touches.js \
 	src/svg/symbol.js \
 	src/svg/axis.js \
 	src/svg/brush.js
@@ -167,49 +180,64 @@ d3.layout.js: \
 
 d3.geo.js: \
 	src/geo/geo.js \
-	src/geo/azimuthal.js \
+	src/geo/stream.js \
+	src/geo/spherical.js \
+	src/geo/cartesian.js \
+	src/geo/resample.js \
+	src/geo/albers-usa.js \
 	src/geo/albers.js \
-	src/geo/bonne.js \
-	src/geo/equirectangular.js \
-	src/geo/mercator.js \
-	src/geo/type.js \
-	src/geo/path.js \
+	src/geo/azimuthal-equal-area.js \
+	src/geo/azimuthal-equidistant.js \
 	src/geo/bounds.js \
+	src/geo/centroid.js \
 	src/geo/circle.js \
+	src/geo/clip.js \
+	src/geo/clip-antimeridian.js \
+	src/geo/clip-circle.js \
+	src/geo/compose.js \
+	src/geo/equirectangular.js \
+	src/geo/gnomonic.js \
+	src/geo/graticule.js \
+	src/geo/interpolate.js \
 	src/geo/greatArc.js \
-	src/geo/greatCircle.js
+	src/geo/mercator.js \
+	src/geo/orthographic.js \
+	src/geo/path.js \
+	src/geo/path-buffer.js \
+	src/geo/path-context.js \
+	src/geo/path-area.js \
+	src/geo/path-centroid.js \
+	src/geo/area.js \
+	src/geo/centroid.js \
+	src/geo/projection.js \
+	src/geo/rotation.js \
+	src/geo/stereographic.js \
+	src/geo/azimuthal.js
 
-d3.csv.js: \
-	src/csv/csv.js \
-	src/csv/parse.js \
-	src/csv/format.js
+d3.dsv.js: \
+	src/dsv/dsv.js \
+	src/dsv/csv.js \
+	src/dsv/tsv.js
 
 d3.time.js: \
 	src/time/time.js \
+	src/time/format-$(LOCALE).js \
 	src/time/format.js \
 	src/time/format-utc.js \
 	src/time/format-iso.js \
-	src/time/range.js \
+	src/time/interval.js \
 	src/time/second.js \
-	src/time/seconds.js \
 	src/time/minute.js \
-	src/time/minutes.js \
 	src/time/hour.js \
-	src/time/hours.js \
 	src/time/day.js \
-	src/time/days.js \
 	src/time/week.js \
-	src/time/weeks.js \
 	src/time/month.js \
-	src/time/months.js \
 	src/time/year.js \
-	src/time/years.js \
 	src/time/scale.js \
 	src/time/scale-utc.js
 
 d3.geom.js: \
 	src/geom/geom.js \
-	src/geom/contour.js \
 	src/geom/hull.js \
 	src/geom/polygon.js \
 	src/geom/voronoi.js \
@@ -219,23 +247,39 @@ d3.geom.js: \
 test: all
 	@$(JS_TESTER)
 
+benchmark: all
+	@node test/geo/benchmark.js
+
 %.min.js: %.js Makefile
 	@rm -f $@
-	$(JS_COMPILER) < $< > $@
+	$(JS_UGLIFY) $< -c -m -o $@
 
-d3%.js: Makefile
+d3%js: Makefile
 	@rm -f $@
-	cat $(filter %.js,$^) > $@
+	@cat $(filter %.js,$^) > $@.tmp
+	$(JS_UGLIFY) $@.tmp -b indent-level=2 -o $@
+	@rm $@.tmp
 	@chmod a-w $@
 
-install:
-	mkdir -p node_modules
-	npm install
+component.json: src/component.js
+	@rm -f $@
+	node src/component.js > $@
+	@chmod a-w $@
 
-package.json: d3.v2.js src/package.js
+package.json: src/package.js
 	@rm -f $@
 	node src/package.js > $@
 	@chmod a-w $@
 
+src/core/format-$(LOCALE).js: src/locale.js src/core/format-locale.js
+	LC_NUMERIC=$(LOCALE) locale -ck LC_NUMERIC | node src/locale.js src/core/format-locale.js > $@
+
+src/time/format-$(LOCALE).js: src/locale.js src/time/format-locale.js
+	LC_TIME=$(LOCALE) locale -ck LC_TIME | node src/locale.js src/time/format-locale.js > $@
+
+.INTERMEDIATE: \
+	src/core/format-$(LOCALE).js \
+	src/time/format-$(LOCALE).js
+
 clean:
-	rm -f d3*.js package.json
+	rm -f d3*.js package.json component.json
