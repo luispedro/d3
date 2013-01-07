@@ -43,12 +43,6 @@ d3.layout.force = function() {
     };
   }
 
-  field = function(x, y, w, h) {
-      return {
-          x: w/2.-x,
-          y: h/2.-y,
-      };
-  };
   function tick() {
     // simulated annealing, basically
     if ((alpha *= .99) < .005) return true;
@@ -83,13 +77,14 @@ d3.layout.force = function() {
       }
     }
 
-    // apply field forces
+    // apply gravity forces
     if (k = alpha * gravity) {
-      for (i = 0; i < n; ++i) {
+      x = size[0] / 2;
+      y = size[1] / 2;
+      i = -1; if (k) while (++i < n) {
         o = nodes[i];
-        f = field(o.x, o.y, size[0], size[1]);
-        o.x += f.x * k;
-        o.y += f.y * k;
+        o.x += (x - o.x) * k;
+        o.y += (y - o.y) * k;
       }
     }
 
@@ -168,12 +163,6 @@ d3.layout.force = function() {
     gravity = x;
     return force;
   };
-
-  force.field = function(f) {
-    if (!arguments.length) return field;
-    field = f;
-    return force;
-  }
 
   force.theta = function(x) {
     if (!arguments.length) return theta;
